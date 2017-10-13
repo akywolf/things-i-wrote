@@ -1,0 +1,116 @@
+//may you please leave a comment 
+#include <iostream>
+#include <utility>
+#include <array>
+#include <random>
+
+const int numberOfCards = 52;
+// i know creating object in global is a really bad practice but it was just straight forward task :D 
+enum class CardRank
+{
+    RANK_2 = 2,
+    RANK_3 = 3,
+    RANK_4 = 4,
+    RANK_5 = 5,
+    RANK_6 = 6,
+    RANK_7 = 7,
+    RANK_8 = 8,
+    RANK_9 = 9,
+    RANK_10 = 10,
+    RANK_JACK = 10,
+    RANK_QUEEN = 10,
+    RANK_KING = 10,
+    RANK_ACE = 11,
+};
+struct Card
+{
+    CardRank rank;
+};
+
+void swapCard(Card &one, Card &two)
+{
+    Card temp = one;
+    one = two;
+    two = temp;
+}
+int Rand()
+{
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<> randCard(1, 52);
+    return randCard(mt);
+}
+
+void shuffleDeck(std::array<Card, 52> &myarray)
+{
+    for (Card card : myarray)
+        swapCard(card, myarray[Rand()]);
+}
+int getCardValue(Card card)
+{
+    return static_cast<int>(card.rank);
+}
+enum class BlackJackResult
+{
+    WIN, LOSE, TIE
+};
+
+BlackJackResult playBlackjack(const std::array<Card, 52> &deck)
+{
+    const Card *cardPtr = &deck[0];
+    int player = 0, dealer = 0;
+    dealer += getCardValue(*cardPtr++);
+    player += getCardValue(*cardPtr++);
+    player += getCardValue(*cardPtr++);
+    if (getCardValue(*(cardPtr - 1)) == 11) {
+        player > 21 ? player -= 10 : 0;
+    }
+    while (player < 17) {
+        player += getCardValue(*cardPtr++);
+        if (getCardValue(*(cardPtr - 1)) == 11) {
+            player > 21 ? player -= 10 : 0;
+        }
+    }
+    while (dealer < 17) {
+        dealer += getCardValue(*cardPtr++);
+        if (getCardValue(*(cardPtr - 1)) == 11) {
+            dealer > 21 ? dealer -= 10 : 0;
+        }
+    }
+    if (player > 21) {
+        BlackJackResult::LOSE;
+    }
+    else if (dealer > 21) {
+        BlackJackResult::WIN;
+    }
+    return player > dealer ? BlackJackResult::WIN : player < dealer ? BlackJackResult::LOSE : BlackJackResult::TIE;
+}
+
+void fillDecks(std::array<Card, numberOfCards> &deck)
+{
+
+    const int numberOfSuits = 4;
+    const int numberOfRank = 13;
+    for (int suit = 0; suit < numberOfSuits; ++suit)
+        for (int rank = 0; rank < numberOfRank; ++rank) {
+            int currentCell = numberOfSuits * suit + rank;
+//            deck[currentCell].suit = static_cast<CardSuit>(suit);
+            deck[currentCell].rank = static_cast<CardRank >(rank);
+        }
+}
+
+int main()
+{
+    std::array<Card, numberOfCards> deck{};
+    fillDecks(deck);
+
+    shuffleDeck(deck);
+
+    BlackJackResult gameResult = playBlackjack(deck);
+    if (gameResult == BlackJackResult::WIN)
+        std::cout << "YOU WON" << '\n';
+    else if (gameResult == BlackJackResult::LOSE)
+        std::cout << "YOU LOST" << '\n';
+    else std::cout << "IT'S TIE" << '\n';
+
+}
