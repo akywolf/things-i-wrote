@@ -1,0 +1,62 @@
+#include <iostream>
+#include <functional>
+
+typedef int (*arithmeticFcn )(int, int);
+
+int getInt()
+{
+    int i;
+    std::cout << "Please input the intger: ";
+    std::cin >> i;
+    return i;
+}
+char getOberator()
+{
+    char c;
+    do {
+        std::cout << "Plese inter the oberator sign: ";
+        std::cin >> c;
+    }
+    while (c != '+' and c != '/' and c != '-' and c != '*');
+    return c;
+}
+int add(int a, int b)
+{
+    return a + b;
+}
+int subtract(int a, int b)
+{
+    return a - b;
+}
+int multiply(int a, int b)
+{
+    return a * b;
+}
+int divide(int a, int b)
+{
+    return a / b;
+}
+struct arithmeticStruct
+{
+    char sign;
+    arithmeticFcn pToFun;
+};
+static arithmeticStruct arithmeticArray[]{
+    {'+', add}, {'-', subtract}, {'*', multiply}, {'/', divide}
+};
+arithmeticFcn getArithmeticFunction(char c)
+{
+    for (auto &i : arithmeticArray)
+        if (c == i.sign)
+            return i.pToFun;
+}
+
+int main()
+{
+    int n = getInt();
+    int m = getInt();
+    char c = getOberator();
+    arithmeticFcn p = getArithmeticFunction(c);
+    std::cout << p(n, m) << '\n';
+
+}
